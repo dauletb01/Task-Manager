@@ -123,4 +123,18 @@ add_button.pack(side=tk.LEFT)
 delate_button.pack(side=tk.LEFT)
 
 
+frame_right_status = tk.Frame(frame_right, borderwidth=2, relief='groove', padx=10, pady=10, width=200)
+frame_right_status.pack(side=tk.TOP, fill=X)
+
+lable_done = tk.Label(frame_right_status, text=f"Done:", font=("Arial", 10, 'bold'))
+lable_done.pack( side=tk.LEFT, fill=Y)
+lable_done_count = tk.Label(frame_right_status, text=f"2", font=("Arial", 10, 'bold'))
+lable_done_count.pack(side=tk.LEFT, fill=Y)
+
+
+lable_progres = tk.Label(frame_right_status, text=f"In progres:", font=("Arial", 10, 'bold'))
+lable_progres.pack( side=tk.LEFT, fill=Y)
+lable_progres_count = tk.Label(frame_right_status, text=f"1", font=("Arial", 10, 'bold'))
+lable_progres_count.pack( side=tk.LEFT, fill=Y)
+
 root.mainloop()
