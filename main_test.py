@@ -4,8 +4,10 @@ import json
 
 config_file_name = "config.json"
 task_file_name = "task.json"
-
-
+statuss = "ALL"
+add_window = None
+delate_active = FALSE
+delate_list =[]
 
 def get_config():
 
@@ -13,7 +15,6 @@ def get_config():
         config_data = json.load(file)
 
     return config_data
-
 
 def write_config():
 
@@ -24,7 +25,6 @@ def write_config():
 
     with open(config_file_name, "w", encoding="utf-8") as file:
          json.dump(config_data, file)
-
 
 def on_closing():
     write_config()
@@ -50,9 +50,6 @@ def get_amaunt_task():
 
     return amaunt_done, amaunt_progres
 
-
-
-
 def write_task(task_data):
 
     with open(task_file_name, "w", encoding="utf-8") as file:
@@ -72,8 +69,8 @@ def checkbutton_changed(id):
     draw_task()
     draw_status()
 
-
 def draw_task():
+    global statuss
 
     for widget in frame_left.winfo_children():
         widget.destroy()
@@ -81,23 +78,27 @@ def draw_task():
     tasks = get_task()
 
     try: 
-        if status == "ALL": draw_task_all(tasks)
-        elif status == "done": draw_task_done(tasks)
-        elif status == "progres": draw_task_progres(tasks)
+        if statuss == "ALL": draw_task_all(tasks)
+        elif statuss == "done": draw_task_done(tasks)
+        elif statuss == "progres": draw_task_progres(tasks)
     except NameError:
         draw_task_all(tasks)
         print("suka")
     else:
-        print("Nothing went wrong")
-
-    
+        print("Nothing went wrong")  
 
 def draw_task_all(tasks):
     i = 0
     for task in tasks:
-        
+        var = BooleanVar()
+        delate_list.append(var)
+
         enabled = IntVar()
-        number=tk.Label(frame_left, text=f"{task["id"]}", borderwidth=2, relief='solid',padx=10, pady=10)
+        if delate_active:
+            number=tk.Checkbutton(frame_left, text=f"{task["id"]}", borderwidth=2, relief='solid',padx=10, pady=10, variable=var)
+        else:
+            number=tk.Label(frame_left, text=f"{task["id"]}", borderwidth=2, relief='solid',padx=10, pady=10)
+
         text=tk.Label(frame_left, text=f"{task["task"]}", borderwidth=2, relief='solid',padx=10, pady=10, justify=tk.LEFT)
         # status = tk.Checkbutton(frame_left, text= "Done" if task["status"] else "In progress" , borderwidth=2, variable=enabled, command=checkbutton_changed(task["id"]), relief='solid', padx=10, pady=10)
         status = tk.Checkbutton(frame_left, text="Done" if task['status'] else "In progress", borderwidth=2, variable=enabled, command=lambda task_id=task['id']: checkbutton_changed(task_id), relief='solid', padx=10, pady=10)
@@ -111,10 +112,16 @@ def draw_task_all(tasks):
 def draw_task_done(tasks):
     i = 0
     for task in tasks:
-        if not(task["status"]): pass
+        if not(task["status"]): continue
+
+        var = BooleanVar()
+        delate_list.append(var)
 
         enabled = IntVar()
-        number=tk.Label(frame_left, text=f"{task["id"]}", borderwidth=2, relief='solid',padx=10, pady=10)
+        if delate_active:
+            number=tk.Checkbutton(frame_left, text=f"{task["id"]}", borderwidth=2, relief='solid',padx=10, pady=10, variable=var)
+        else:
+            number=tk.Label(frame_left, text=f"{task["id"]}", borderwidth=2, relief='solid',padx=10, pady=10)
         text=tk.Label(frame_left, text=f"{task["task"]}", borderwidth=2, relief='solid',padx=10, pady=10, justify=tk.LEFT)
         # status = tk.Checkbutton(frame_left, text= "Done" if task["status"] else "In progress" , borderwidth=2, variable=enabled, command=checkbutton_changed(task["id"]), relief='solid', padx=10, pady=10)
         status = tk.Checkbutton(frame_left, text="Done" if task['status'] else "In progress", borderwidth=2, variable=enabled, command=lambda task_id=task['id']: checkbutton_changed(task_id), relief='solid', padx=10, pady=10)
@@ -129,10 +136,16 @@ def draw_task_done(tasks):
 def draw_task_progres(tasks):
     i = 0
     for task in tasks:
-        if task["status"]: pass
+        if task["status"]: continue
+
+        var = BooleanVar()
+        delate_list.append(var)
 
         enabled = IntVar()
-        number=tk.Label(frame_left, text=f"{task["id"]}", borderwidth=2, relief='solid',padx=10, pady=10)
+        if delate_active:
+            number=tk.Checkbutton(frame_left, text=f"{task["id"]}", borderwidth=2, relief='solid',padx=10, pady=10, variable=var)
+        else:
+            number=tk.Label(frame_left, text=f"{task["id"]}", borderwidth=2, relief='solid',padx=10, pady=10)
         text=tk.Label(frame_left, text=f"{task["task"]}", borderwidth=2, relief='solid',padx=10, pady=10, justify=tk.LEFT)
         # status = tk.Checkbutton(frame_left, text= "Done" if task["status"] else "In progress" , borderwidth=2, variable=enabled, command=checkbutton_changed(task["id"]), relief='solid', padx=10, pady=10)
         status = tk.Checkbutton(frame_left, text="Done" if task['status'] else "In progress", borderwidth=2, variable=enabled, command=lambda task_id=task['id']: checkbutton_changed(task_id), relief='solid', padx=10, pady=10)
@@ -162,6 +175,74 @@ def draw_status():
     lable_progres_count = tk.Label(frame_right_status, text= amaunt_prigres, font=("Arial", 10, 'bold'))
     lable_progres_count.grid( row=1, column=1)
 
+def btn_all_change():
+    print("ALL")
+    global statuss
+    statuss = "ALL"
+    draw_task()
+
+def btn_done_change():
+    print("done")
+    global statuss
+    statuss = "done"
+    draw_task()
+
+def btn_progres_change():
+    print("progres")
+    global statuss
+    statuss = "progres"
+    draw_task()
+
+def create_add_window():
+    global add_window
+    if add_window is None or not tk.Toplevel.winfo_exists(add_window):
+        add_window = Tk()
+        add_window.title("ADD window")
+        add_window.geometry("250x200")
+        root.resizable(False, False)
+
+        entr = Entry(add_window, font=("Arial", 15))
+        entr.pack()
+
+        add_button = tk.Button(add_window, borderwidth=2, relief='groove', padx=5, pady=5, text="Add task", command=lambda: write_task_to_json(entr.get()))
+        add_button.pack()
+
+        add_window.protocol("WM_DELETE_WINDOW", on_closing_new_window)
+
+def write_task_to_json(text_task):
+    # print(task)
+    tasks = get_task()
+
+    json_task = {"id": tasks[-1]["id"] + 1, "task": text_task, "status": FALSE}
+
+    tasks.append(json_task)
+    write_task(tasks)
+    on_closing_new_window()
+    draw_task()
+
+def on_closing_new_window():
+    global add_window
+    add_window.destroy()
+    add_window = None
+
+def delate_tasks():
+    global delate_active
+    global delate_select_button
+    delate_active = not delate_active
+    print(delate_active)
+
+    if delate_active:
+        delate_select_button = tk.Button(frame_right, borderwidth=2, relief='groove', padx=5, pady=5, text="Delate selection tasks", command=get_checked_items)
+        delate_select_button.pack(side=tk.LEFT, anchor=NW, fill=X)
+    else:
+        delate_select_button.destroy()
+
+def get_checked_items():
+    selected = []
+    for i, var in enumerate(delate_list):
+        if var.get():
+            selected.append(i)
+    Tk.messagebox.showinfo("Selected Items", ", ".join(selected))
 # --------------------------------
 
 root = tk.Tk()
@@ -200,8 +281,8 @@ frame_right.pack(side=tk.LEFT, fill=Y)
 frame_right_button = tk.Frame(frame_right, borderwidth=2, relief='groove', padx=10, pady=10, width=200)
 frame_right_button.pack(side=tk.TOP, fill=Y)
 
-add_button = tk.Button(frame_right_button, borderwidth=2, relief='groove', padx=5, pady=5, text="Add task", width=8, height=1)
-delate_button = tk.Button(frame_right_button, borderwidth=2, relief='groove', padx=5, pady=5, text="Delate task", width=8, height=1)
+add_button = tk.Button(frame_right_button, borderwidth=2, relief='groove', padx=5, pady=5, text="Add task", width=8, height=1, command=create_add_window)
+delate_button = tk.Button(frame_right_button, borderwidth=2, relief='groove', padx=5, pady=5, text="Delate task", width=8, height=1, command=delate_tasks)
 
 add_button.pack(side=tk.LEFT)
 delate_button.pack(side=tk.LEFT)
@@ -220,13 +301,16 @@ frame_right_select.pack(side=tk.TOP, fill=X)
 
 position = {"padx":6, "pady":6, "anchor":NW}
 status = StringVar(value="ALL")
-btn_all = tk.Radiobutton(frame_right_select, text="ALL", value="ALL", variable=status, command= draw_task())
+
+btn_all = tk.Radiobutton(frame_right_select, text="ALL", value="ALL", variable=status, command=lambda statuss="ALL": btn_all_change() )
 btn_all.pack(**position)
   
-btn_done = tk.Radiobutton(frame_right_select, text="Done", value="done", variable=status, command= draw_task())
+btn_done = tk.Radiobutton(frame_right_select, text="Done", value="done", variable=status, command=lambda statuss="done": btn_done_change())
 btn_done.pack(**position)
  
-btn_progres = tk.Radiobutton(frame_right_select, text="Progres", value="progres", variable=status, command= draw_task())
+btn_progres = tk.Radiobutton(frame_right_select, text="Progres", value="progres", variable=status, command=lambda statuss="progres": btn_progres_change())
 btn_progres.pack(**position)
+
+
 
 root.mainloop()
