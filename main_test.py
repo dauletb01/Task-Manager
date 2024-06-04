@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import *
+from tkinter import messagebox
 import json
 
 config_file_name = "config.json"
@@ -55,7 +56,7 @@ def write_task(task_data):
     with open(task_file_name, "w", encoding="utf-8") as file:
         json.dump(task_data, file)
 
-    return task_data
+    draw_task()
 
 def checkbutton_changed(id):
     tasks = get_task()
@@ -71,7 +72,8 @@ def checkbutton_changed(id):
 
 def draw_task():
     global statuss
-
+    global delate_list
+    delate_list =[]
     for widget in frame_left.winfo_children():
         widget.destroy()
 
@@ -237,12 +239,33 @@ def delate_tasks():
     else:
         delate_select_button.destroy()
 
+    draw_task()
+
 def get_checked_items():
     selected = []
+    tasks = get_task()
     for i, var in enumerate(delate_list):
+        print(var.get())
         if var.get():
-            selected.append(i)
-    Tk.messagebox.showinfo("Selected Items", ", ".join(selected))
+            selected.append(str(tasks[i]["id"]))
+
+    if selected:
+        confirm = messagebox.askyesno("Confirmation", f"Вы выбрали: {', '.join(selected)}. Вы уверены?")
+        if confirm:
+            messagebox.showinfo("Selected Items", f"Вы выбрали: {', '.join(selected)}")
+            delate_tasks_to_json(selected)
+        else:
+            messagebox.showinfo("Selected Items", "Выбор отменен")
+    else:
+        messagebox.showinfo("Selected Items", "Вы ничего не выбрали")
+
+def delate_tasks_to_json(id):
+    tasks = get_task()
+
+    tasks_new = [item for item in tasks if not(str(item["id"]) in id)]
+
+    write_task(tasks_new)
+
 # --------------------------------
 
 root = tk.Tk()

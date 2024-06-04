@@ -6,7 +6,15 @@ def get_checked_items():
     for i, var in enumerate(check_vars):
         if var.get():
             selected.append(options[i])
-    messagebox.showinfo("Selected Items", ", ".join(selected))
+    
+    if selected:
+        confirm = messagebox.askyesno("Confirmation", f"Вы выбрали: {', '.join(selected)}. Вы уверены?")
+        if confirm:
+            messagebox.showinfo("Selected Items", f"Вы выбрали: {', '.join(selected)}")
+        else:
+            messagebox.showinfo("Selected Items", "Выбор отменен")
+    else:
+        messagebox.showinfo("Selected Items", "Вы ничего не выбрали")
 
 root = tk.Tk()
 root.title("Checkbutton Example")
